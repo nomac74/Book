@@ -1,0 +1,181 @@
+<html>
+<head>
+    <title>Reservation</title>
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .card {
+            border: 1px solid black;
+            min-height: 110px;
+            overflow: auto;
+            white-space: wrap;
+            min-width: 125px;
+            margin: 0px;         
+        }
+        .card-header {
+            padding: 0px;
+            margin: 2px;  
+            min-height: 120px;
+            box-shadow: 0 4px 8px 0 rgba(31, 18, 90, 0.5);
+        }
+        .card-body {
+            padding: 0px;  
+            margin: 3px;
+            min-height: 0px;
+        }
+        .consecutive_nights {
+            background-color: rgb(237, 208, 126);
+        }
+
+        .one_night {
+            background-color: rgb(232, 245, 230);
+        }
+
+        .card.paid {
+            background-color: rgb(237, 208, 126);
+        }
+
+        .card.checked-in {
+            background-color: orange;
+        }
+
+        .checkout-delay {
+            color: red;
+        }
+
+        .card.checked-out {
+            background-color: red;
+        }
+
+        .form-control {
+        box-shadow: 0 4px 8px 0 rgba(0,0,0,0.4);
+    }
+        .container {
+            padding: 0;
+            margin : 0;
+            max-width: 110%;
+        }
+        .row {
+            margin: 0 0 10px 10px;
+        }
+        .header-title {
+            font-size: 20px;
+            font-weight: bold;
+            margin-top: 10px;
+            text-align: left;
+            color: coral;
+        }
+        .card {
+            position: relative; 
+            z-index: 1; 
+        }
+        .card.active {
+            font-size: 0.9em;
+            position: fixed;
+            max-width: 80vw;  /* 90% of viewport width */
+            max-height: 80vh; /* 90% of viewport height */
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 2;
+            width: 150px;
+        }
+        .card.active .form-group {
+            font-size: 0.9em; 
+            margin-bottom: 0.2rem;
+        }
+        .card.active .form-control {
+            font-size: 0.7em;  /* 입력 필드의 텍스트 크기 조절 */
+            padding: 0.2rem;  
+            margin-bottom: 0.2rem;  
+        }
+        .card.active label {
+            font-size: 0.9em;  /* 라벨의 텍스트 크기 조절 */
+            margin-bottom: 0.2rem; 
+        }
+        .cancelBtn {
+            margin: 0;
+            padding: 0;
+        }
+        .btn-primary {
+            margin-top: 10px;   /* 버튼 주변의 마진 설정 */
+            margin-left: 5px;   /* 좌측 마진 설정 */
+            margin-right: 3px;  /* 우측 마진 설정 */
+            font-size: 11px;   /* 버튼의 폰트 크기 설정 */
+            width: 60px;  /* 버튼의 너비 설정 */
+            height: 30px;  /* 버튼의 높이 설정 */
+            color: white;  /* 텍스트 색상을 흰색으로 설정 */
+            background-color: rgb(45, 68, 127);  /* 배경색을 파란색으로 설정 */
+        }
+        .btn-danger {
+            margin-top: 10px;   /* 버튼 주변의 마진 설정 */
+            margin-left: 3px;   /* 좌측 마진 설정 */
+            margin-right: 5px;  /* 우측 마진 설정 */
+            font-size: 11px;   /* 버튼의 폰트 크기 설정 */
+            width: 60px;  /* 버튼의 너비 설정 */
+            height: 30px;  /* 버튼의 높이 설정 */
+            color: white;  /* 텍스트 색상을 흰색으로 설정 */
+            background-color: rgb(133, 55, 84);  
+        }
+      
+            .booked-info {
+            font-size: 8px; 
+            color: #0e0629;
+            padding-left: 3px;
+        }
+            .drag-over {
+        background-color: #bea8a8; /* Light grey */
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container" id="container">
+        <div class="row">
+            <div class="col-12">
+                <h1 class="header-title">Hotel Room Management Status</h1>
+            </div>
+        </div>
+    </div>
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script> <!-- Flatpickr JS -->
+    <script src="rooms.js"></script>
+    <script src="ui.js"></script>
+    <script src="eventHandlers.js"></script>
+    <script>
+        $(document).ready(function() {
+            $('input').on('keydown', function(e) {
+                if (e.which === 13) {  // 13은 엔터 키의 키 코드입니다.
+                    e.preventDefault();  // 기본 엔터 키 동작 (form 제출 등)을 막습니다.
+
+                    // 이 입력 필드 다음에 있는 입력 필드를 찾습니다.
+                    let nextInput = $('input, button').get($('input, button').index(this) + 1)
+
+                    if (nextInput) {
+                        nextInput.focus();  // 다음 입력 필드에 포커스를 둡니다.
+                    }
+                }
+            });
+
+            // 체크인과 체크아웃에 대한 Flatpickr 인스턴스를 만들고,
+            // 엔터 키를 눌렀을 때 달력을 열도록 설정합니다.
+            const checkinPicker = flatpickr('#checkin', {});
+            const checkoutPicker = flatpickr('#checkout', {});
+            
+            $('#checkin, #checkout').on('keydown', function(e) {
+                if (e.which === 13) {  // 13은 엔터 키의 키 코드입니다.
+                    e.preventDefault();  // 기본 엔터 키 동작 (form 제출 등)을 막습니다.
+
+                    // 엔터 키를 눌렀을 때 달력을 엽니다.
+                    if (this.id === 'checkin') {
+                        checkinPicker.open();
+                    } else if (this.id === 'checkout') {
+                        checkoutPicker.open();
+                    }
+                }
+            });
+        });
+    </script>
+
+</body>
+</html>
